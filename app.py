@@ -1,13 +1,10 @@
-
-
-
 from aiogram import Bot, Dispatcher, executor, types
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 import logging
 import asyncio
 
 
-BOT_TOKEN = '7691118439:AAEF9ECbHvB1e8Lhi7NlmJxWF284rldzfzY'  # o'zingizning token
+BOT_TOKEN = '7691118439:AAH5mGK8VWFxhpItj8GZEp0AwOQoyihwDQg'  # o'zingizning token
 ADMIN_ID = '6855997739'  # o'zingizning Telegram ID (raqam holatda)
 
 bot = Bot(token=API_TOKEN)
