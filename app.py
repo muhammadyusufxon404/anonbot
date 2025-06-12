@@ -7,7 +7,7 @@ import asyncio
 BOT_TOKEN = '7691118439:AAH5mGK8VWFxhpItj8GZEp0AwOQoyihwDQg'  # o'zingizning token
 ADMIN_ID = '6855997739'  # o'zingizning Telegram ID (raqam holatda)
 
-bot = Bot(token=API_TOKEN)
+bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher(bot)
 
 users = set()
