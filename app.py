@@ -31,25 +31,55 @@ async def handle_start(message: types.Message):
         )
 
 @dp.message_handler(commands=['broadcast'])
-async def broadcast_cmd(message: types.Message):
+async def broadcast_start(message: types.Message):
     if message.from_user.id != ADMIN_ID:
-        return await message.answer("❌ Siz admin emassiz.")
-    await message.answer("📨 Yubormoqchi bo'lgan xabar matnini kiriting:")
+        return await message.reply("⛔ Siz admin emassiz.")
+    await message.answer("📨 Yuboriladigan xabar matnini yuboring:")
+    await BroadcastState.text.set()
 
-    @dp.message_handler(lambda msg: msg.chat.id == ADMIN_ID, content_types=types.ContentType.TEXT)
-    async def get_broadcast_text(msg: types.Message):
-        markup = InlineKeyboardMarkup().add(
-            InlineKeyboardButton("✅ Javob berish", url=f"https://t.me/{(await bot.get_me()).username}")
-        )
-        count = 0
-        for user_id in users:
-            try:
-                await bot.send_message(user_id, f"📢 {msg.text}", reply_markup=markup)
-                count += 1
-                await asyncio.sleep(0.05)
-            except:
-                continue
-        await msg.answer(f"✅ {count} ta foydalanuvchiga yuborildi.")
+# Xabar matni
+@dp.message_handler(state=BroadcastState.text)
+async def get_text(message: types.Message, state: FSMContext):
+    await state.update_data(text=message.text)
+    await message.answer("🔘 Tugma matnini yozing:")
+    await BroadcastState.btn_text.set()
+
+# Tugma matni
+@dp.message_handler(state=BroadcastState.btn_text)
+async def get_btn_text(message: types.Message, state: FSMContext):
+    await state.update_data(btn_text=message.text)
+    await message.answer("🔗 Tugma uchun havolani yuboring (http bilan):")
+    await BroadcastState.btn_url.set()
+
+# Tugma havolasi va yuborish
+@dp.message_handler(state=BroadcastState.btn_url)
+async def get_btn_url(message: types.Message, state: FSMContext):
+    url = message.text
+    if not url.startswith("http"):
+        return await message.answer("⚠ Iltimos, havola http bilan boshlansin.")
+    
+    data = await state.get_data()
+    text = data['text']
+    btn_text = data['btn_text']
+
+    # Inline tugma
+    markup = InlineKeyboardMarkup().add(
+        InlineKeyboardButton(btn_text, url=url)
+    )
+
+    # Foydalanuvchilar ro‘yxati
+    users = [6855997739, 123456789]  # Bu yerga haqiqiy user ID’larni yozing
+
+    count = 0
+    for user_id in users:
+        try:
+            await bot.send_message(user_id, text, reply_markup=markup)
+            count += 1
+        except Exception as e:
+            print(f"Xatolik: {user_id} -> {e}")
+
+    await message.answer(f"✅ {count} foydalanuvchiga yuborildi.")
+    await state.finish()
 
 @dp.message_handler(lambda message: message.reply_to_message and message.reply_to_message.message_id in pending_messages)
 async def handle_reply(message: types.Message):
