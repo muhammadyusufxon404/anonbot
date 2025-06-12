@@ -1,0 +1,9 @@
+[phases.setup]
+nixPkgs = [
+  "python39",
+  "gcc",
+  "libffi",
+  "openssl",
+  "pkg-config",
+  "glibc"
+]
